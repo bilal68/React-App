@@ -1,0 +1,49 @@
+
+  .top-row {
+    border-bottom: 1px solid #f0f0f0;
+    padding-bottom: 16px;
+  }
+  
+  .author-info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  
+  .author-title{
+    color: #003B44 !important;
+    font-family: "Inter", sans-serif !important;
+  }
+  .author-text {
+    display: flex;
+    flex-direction: column;
+    text-align: left;
+  }
+
+  .file-card {
+    background-color: #ffffff;
+    box-shadow: 0px 2px 6px rgba(0,0,0,0.05);
+    text-align: left;
+  }
+  
+  .file-content {
+    font-family: monospace;
+    background: #f5f5f5;
+    padding: 12px;
+    overflow-x: auto;
+    white-space: pre-wrap;
+    border-radius: 4px;
+  }
+  
+  .gist-buttons-wrapper {
+    display: flex;
+    justify-content: flex-end;
+  }
+  
+  .gist-buttons {
+    display: flex;
+    gap: 12px;
+  }
+  
+  
+  

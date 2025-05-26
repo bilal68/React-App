@@ -1,0 +1,26 @@
+.search-bar-container {
+  width: 100%;
+  max-width: 300px;
+}
+
+.search-bar {
+  background-color: #003b44 !important;
+  color: white !important;
+  border: 1px solid white !important;
+}
+
+.search-bar::placeholder,
+.search-bar .ant-input::placeholder {
+  color: #ccc !important;
+  opacity: 1 !important;
+}
+
+.search-icon {
+  color: white !important;
+  margin-right: 8px;
+}
+
+.search-bar .ant-input {
+  background-color: transparent;
+  color: white;
+}

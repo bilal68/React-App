@@ -1,0 +1,69 @@
+.gist-action-buttons {
+    display: flex;
+    gap: 16px;
+}
+
+.gist-action-buttons {
+    display: flex;
+    gap: 16px;
+}
+
+.custom-action-button {
+    display: flex;
+    align-items: center;
+    border: 1px solid #003b3b;
+    border-radius: 4px;
+    overflow: hidden;
+    background-color: #003b3b;
+    justify-content: space-between;
+    transition: background-color 0.3s ease;
+}
+
+
+.label-btn {
+    flex: 1;
+    max-width: 80%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    font-weight: 500;
+    color: white;
+    cursor: pointer;
+    background-color: transparent;
+    border: none;
+    transition: none;
+}
+
+.label-btn:hover,
+.label-btn:focus,
+.ant-btn.label-btn:hover,
+.ant-btn.label-btn:focus {
+  background-color: transparent !important;
+  color: white !important;
+  border-color: #003b3b !important;
+  box-shadow: none !important;
+}
+
+.label-btn svg {
+    fill: white;
+    transition: none;
+}
+
+.label-btn:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+}
+
+.count {
+    background-color: white;
+    color: #003b3b;
+    padding: 7px 13px;
+    display: flex;
+    align-items: center;
+    font-weight: 500;
+    min-width: 20%;
+    text-align: center;
+    border-left: 1px solid #003b3b;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}

@@ -1,0 +1,29 @@
+.custom-pagination {
+    background-color: #f5f5f5;
+    padding: 16px;
+    border-top: 1px solid #e8e8e8;
+    margin: 0px !important;
+}
+
+
+.white-pagination .ant-pagination-item,
+.white-pagination .ant-pagination-prev,
+.white-pagination .ant-pagination-next {
+  background-color: white !important; /* Set background color to white */
+  border: 1px solid #d9d9d9; /* Optional: Add a border for better visibility */
+  color: #000; /* Set text color to black */
+}
+
+.white-pagination .ant-pagination-item-active {
+  background-color: #f0f0f0; /* Slightly darker background for the active page */
+  border-color: #d9d9d9;
+  color: #000;
+}
+
+.white-pagination .ant-pagination-item:hover,
+.white-pagination .ant-pagination-prev:hover,
+.white-pagination .ant-pagination-next:hover {
+  background-color: #e6f7ff; 
+  border-color: #91d5ff;
+  color: #000;
+}

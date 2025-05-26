@@ -1,0 +1,28 @@
+.profile-card {
+    text-align: center;
+    background-color: #fff;
+    padding: 24px;
+    border-radius: 8px;
+    box-shadow: 0 0 8px rgba(0, 0, 0, 0.06);
+}
+
+.gists-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem
+}
+
+.gist-count-circle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-color: #003b3b;
+    color: white;
+    font-size: 16px;
+    font-weight: bold;
+    box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.1);
+    font-family: "Inter", sans-serif;
+}
