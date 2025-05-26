@@ -1,7 +1,17 @@
 import { Card, Avatar, Row, Col, Space, Tooltip, Button } from "antd";
 import "./GridComponent.css";
 import { useNavigate } from "react-router-dom";
+import Prism from "prismjs";
 
+import "prismjs/themes/prism.css";
+import "prismjs/components/prism-javascript";
+import "prismjs/components/prism-python";
+import "prismjs/components/prism-typescript";
+import "prismjs/components/prism-json";
+import "prismjs/components/prism-yaml";
+// import "prismjs/components/prism-tsx";
+import { useEffect, useState } from "react";
+import { FileContentsMap } from "../../types/appTypes";
 interface GridComponentProps<T> {
   data: T[];
   isLoggedIn: boolean;
@@ -21,7 +31,35 @@ function GridComponent<T extends object>({
     }
     return text;
   };
+  const [fileContents, setFileContents] = useState<FileContentsMap>({});
 
+  useEffect(() => {
+    const fetchAllContents = async () => {
+      const newContents: FileContentsMap = {};
+      await Promise.all(
+        data.map(async (item: any) => {
+          const files = item.files || {};
+          const firstFileKey = Object.keys(files)[0];
+          const firstFile = files[firstFileKey];
+          newContents[item.id] = {};
+          if (firstFile && firstFile.raw_url) {
+            try {
+              const res = await fetch(firstFile.raw_url);
+              newContents[item.id][firstFileKey] = await res.text();
+            } catch {
+              newContents[item.id][firstFileKey] = "Failed to load content.";
+            }
+          }
+        })
+      );
+      setFileContents(newContents);
+    };
+    fetchAllContents();
+  }, [data]);
+
+  useEffect(() => {
+    Prism.highlightAll();
+  }, [data]);
   const navigate = useNavigate();
 
   const handleCardClick = (id: string) => {
@@ -37,23 +75,15 @@ function GridComponent<T extends object>({
       {/* Grid Layout */}
       <Row gutter={[16, 16]}>
         {data.map((item: any) => {
-          const firstFileName = Object.keys(item.files || {})[0];
-          const gistName = firstFileName || "No file available";
-          const formattedJSON = Object.entries(item)
-            .slice(0, 10) // Display only the first 10 rows of JSON data
-            .map(([key, value], index) => (
-              <div className="json-line" key={index}>
-                <span className="line-number">{index + 1}</span>
-                <span className="line-content">
-                  <span className="json-key">"{key}"</span>:{" "}
-                  <span className="json-value">
-                    {typeof value === "string" ? `"${value}"` : String(value)}
-                  </span>
-                </span>
-              </div>
-            ));
+          console.log("Rendering item:", item.files);
+          const firstFileKey = Object.keys(item.files)[0];
+          const firstFile = item.files[firstFileKey];
+          console.log("First file key:", firstFile);
+          const gistName = firstFile.name || "No file available";
+          const fileContent = fileContents[item.id]?.[firstFileKey] || "";
+          const language = (firstFile?.language || "json").toLowerCase();
           const colSpan = 24 / size;
-          
+
           return (
             <Col xs={24} sm={colSpan} md={colSpan} lg={colSpan} key={item.id}>
               <Card
@@ -61,7 +91,20 @@ function GridComponent<T extends object>({
                 className="gist-card"
                 onClick={() => handleCardClick(item.id)}
               >
-                <div className="json-preview">{formattedJSON}</div>
+                <div className="json-preview">
+                  <pre className={`language-${language}`}>
+                    <code className={`language-${language}`}>
+                      {fileContent
+                        .split("\n")
+                        .slice(0, 10)
+                        .map((line, index) => (
+                          <span className="line" key={index}>
+                            {line}
+                          </span>
+                        ))}
+                    </code>
+                  </pre>
+                </div>
 
                 <div className="card-meta">
                   <Avatar src={item.owner.avatar_url} size={48} />
@@ -122,7 +165,7 @@ function GridComponent<T extends object>({
                           style={{ padding: 0 }}
                         >
                           <svg
-                            width="36" // Adjust the size as needed
+                            width="36"
                             height="36"
                             viewBox="0 0 36 36"
                             fill="none"

@@ -3,21 +3,20 @@
 import { CreateGistPayload } from "../types/appTypes";
 
 const baseUrl = 'https://api.github.com/gists';
-// const token = import.meta.env.VITE_GITHUB_TOKEN;
-const token = sessionStorage.getItem("authToken");;
+const token = import.meta.env.VITE_GITHUB_TOKEN;
 export const fetchPublicGists = async (page: number = 1) => {
     try {
         const response = await fetch(`${baseUrl}/public?page=${page}`,
-            // {
-            //     headers: {
-            //         Authorization: `Bearer ${token}`,
-            //     },
-            // }
+            {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            }
         );
         if (!response.ok) {
             throw new Error(`Error fetching gists: ${response.statusText}`);
         }
-        return await response.json();// need to add a format function
+        return await response.json();
     } catch (error) {
         console.error(error);
         throw error;

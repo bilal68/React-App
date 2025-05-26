@@ -149,10 +149,9 @@ function TableComponent<T extends object>({
       onRow={(record) => ({
         onClick: () => {
           if (isLoggedIn) {
-            console.log("Row clicked:", record); // Log the clicked row data
-            navigate(`/gist/${record.id}`); // Navigate to the details page if logged in
+            navigate(`/gist/${record.id}`); 
           } else {
-            alert("You must be logged in to view this gist."); // Show an alert if not logged in
+            alert("You must be logged in to view this gist."); 
           }
         },
       })}

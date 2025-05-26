@@ -11,8 +11,7 @@ import PageLayout from "./components/Layout/PageLayout";
 import ProfilePage from "./Pages/ProfilePage/ProfilePage";
 
 function App() {
-  const isLoggedIn = !!sessionStorage.getItem("authToken");
-
+  // const isLoggedIn = !!sessionStorage.getItem("authToken");
   return (
     <AppProvider>
       <Router>
@@ -20,7 +19,7 @@ function App() {
         <PageLayout>
             <Routes>
               <Route path="/" element={<LandingPage />} />
-              <Route element={<ProtectedRoute isLoggedIn={isLoggedIn} />}>
+              <Route element={<ProtectedRoute />}>
                 <Route path="/gist/:id" element={<GistDetailsPage />} />
                 <Route path="/create-gist" element={<CreateGistPage />} />
                 <Route path="/profile" element={<ProfilePage />} />

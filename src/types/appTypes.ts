@@ -41,3 +41,9 @@ export interface CreateGistPayload {
     public: boolean;
     files: Record<string, GistFilePayload>;
 }
+
+export type FileContentsMap = {
+    [gistId: string]: {
+        [fileName: string]: string;
+    };
+};

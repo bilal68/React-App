@@ -1,15 +1,16 @@
 import React from "react";
 import { Navigate, Outlet } from "react-router-dom";
+import { useAppContext } from "../context/AppContext";
 
 interface ProtectedRouteProps {
-  isLoggedIn: boolean;
   redirectPath?: string;
 }
 
 const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
-  isLoggedIn,
   redirectPath = "/",
 }) => {
+  const { authToken } = useAppContext();
+  const isLoggedIn = !!authToken;
   if (!isLoggedIn) {
     // Redirect to the specified path (default: landing page)
     return <Navigate to={redirectPath} replace />;
