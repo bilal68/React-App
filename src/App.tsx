@@ -31,4 +31,11 @@ function App() {
   );
 }
 
+function TestToast() {
+  return (
+    <Button onClick={() => message.success("Toast works!")}>
+      Show Toast
+    </Button>
+  );
+}
 export default App;

@@ -4,6 +4,18 @@ import { CreateGistPayload } from "../types/appTypes";
 
 const baseUrl = 'https://api.github.com/gists';
 const token = import.meta.env.VITE_GITHUB_TOKEN;
+
+const handleApiError = async (response: Response) => {
+    let errorMsg = "Unknown error";
+    try {
+        const data = await response.json();
+        errorMsg = data?.message || JSON.stringify(data);
+    } catch {
+        errorMsg = response.statusText;
+    }
+    return { status: response.status, message: errorMsg };
+};
+
 export const fetchPublicGists = async (page: number = 1) => {
     try {
         const response = await fetch(`${baseUrl}/public?page=${page}`,
@@ -14,7 +26,7 @@ export const fetchPublicGists = async (page: number = 1) => {
             }
         );
         if (!response.ok) {
-            throw new Error(`Error fetching gists: ${response.statusText}`);
+            throw await handleApiError(response);
         }
         return await response.json();
     } catch (error) {
@@ -32,7 +44,7 @@ export const fetchGistById = async (id: string) => {
         });
 
         if (!response.ok) {
-            throw new Error(`Failed to fetch gist with ID: ${id}`);
+            throw await handleApiError(response);
         }
 
         const data = await response.json();
@@ -54,7 +66,7 @@ export const fetchGistForks = async (gistId: string) => {
         });
 
         if (!response.ok) {
-            throw new Error(`Failed to fetch forks: ${response.statusText}`);
+            throw await handleApiError(response);
         }
 
         const data = await response.json();
@@ -76,11 +88,11 @@ export const forkGist = async (gistId: string) => {
         });
 
         if (!response.ok) {
-            throw new Error(`Failed to fork gist: ${response.statusText}`);
+            throw await handleApiError(response);
         }
 
         const data = await response.json();
-        return data; // Return the forked gist data
+        return data;
     } catch (error) {
         console.error("Error forking gist:", error);
         throw error;
@@ -99,7 +111,7 @@ export const starGist = async (gistId: string) => {
         });
 
         if (!response.ok) {
-            throw new Error(`Failed to star gist: ${response.statusText}`);
+            throw await handleApiError(response);
         }
 
         return true; // Return true if the gist was successfully starred
@@ -123,7 +135,7 @@ export const createGist = async (
         });
 
         if (!response.ok) {
-            throw new Error(`Failed to create gist: ${response.statusText}`);
+            throw await handleApiError(response);
         }
 
         return await response.json();
@@ -135,20 +147,20 @@ export const createGist = async (
 
 export const fetchUserGists = async (username: string) => {
     const baseUrl = `https://api.github.com/users/${username}/gists`;
-    const token = sessionStorage.getItem("authToken"); 
+    const token = sessionStorage.getItem("authToken");
 
     try {
         const response = await fetch(baseUrl, {
             headers: {
-                Authorization: `Bearer ${token}`, 
+                Authorization: `Bearer ${token}`,
             },
         });
 
         if (!response.ok) {
-            throw new Error(`Error fetching gists for user ${username}: ${response.statusText}`);
+            throw await handleApiError(response);
         }
 
-        return await response.json(); 
+        return await response.json();
     } catch (error) {
         console.error("Error fetching user gists:", error);
         throw error;

@@ -1,5 +1,12 @@
 import { useEffect, useState } from "react";
-import { Button, Col, Row, Space, Typography } from "antd";
+import {
+  Button,
+  Col,
+  message,
+  Row,
+  Space,
+  Typography,
+} from "antd";
 import { AppstoreOutlined, TableOutlined } from "@ant-design/icons";
 import TableComponent from "../components/TableComponent/TableComponent";
 import GridComponent from "../components/GridComponent/GridComponent";
@@ -9,7 +16,7 @@ import PaginationComponent from "../components/Pagination/Pagination";
 import { fetchPublicGists, forkGist } from "../services/gistService";
 import { useAppContext } from "../context/AppContext";
 import Loader from "../components/Loader/Loader";
-import { Gist } from "../types/appTypes";
+import { Gist, ApiError } from "../types/appTypes";
 
 const { Title } = Typography;
 
@@ -29,8 +36,11 @@ function LandingPage() {
     try {
       setLoading(true);
       await forkGist(gistId);
+      message.success("Gist forked successfully!");
     } catch (error) {
-      console.error("Error while forking gist:", error);
+      const apiError = error as ApiError;
+      if (apiError.status === 422) message.warning(apiError.message);
+      else console.error("Error while forking gist:", error);
     } finally {
       setLoading(false);
     }
@@ -57,8 +67,10 @@ function LandingPage() {
   useEffect(() => {
     const filtered = gists.filter(
       (item: Gist) =>
-        item.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        item.owner?.login?.toLowerCase().includes(searchTerm.toLowerCase())
+        (typeof item.description === "string" &&
+          item.description.toLowerCase().includes(searchTerm.toLowerCase())) ||
+        (typeof item.owner?.login === "string" &&
+          item.owner.login.toLowerCase().includes(searchTerm.toLowerCase()))
     );
     setFilteredData(filtered);
   }, [searchTerm, gists]);
