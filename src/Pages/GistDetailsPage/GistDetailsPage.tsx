@@ -11,21 +11,22 @@ import {
 import "./GistDetailsPage.css";
 import GistActionButtons from "../../components/GistActionButtons/GistActionButtons";
 import Loader from "../../components/Loader/Loader";
+import { Gist, GistFile } from "../../types/appTypes";
 
 const { Title, Text, Paragraph } = Typography;
 
 const GistDetailsPage = () => {
   const { id } = useParams();
-  const [gist, setGist] = useState<any>(null);
+  const [gist, setGist] = useState<Gist | null>(null);
   const [forksCount, setForksCount] = useState(0);
-  const [starsCount, setStarsCount] = useState(0);
+  const [starsCount] = useState(0);
   const [isForkLoading, setIsForkLoading] = useState(false);
   const [isStarLoading, setIsStarLoading] = useState(false);
 
   useEffect(() => {
     const fetchGistDetails = async () => {
       try {
-        const data = await fetchGistById(id);
+        const data: Gist = await fetchGistById(id!);
         setGist(data);
       } catch (error) {
         console.error("Error fetching gist:", error);
@@ -79,10 +80,10 @@ const GistDetailsPage = () => {
         {/* Left Side: Avatar, name, etc. */}
         <Col xs={24} md={16}>
           <div className="author-info">
-            <Avatar src={gist.owner.avatar_url} size={64} />
+            <Avatar src={gist?.owner?.avatar_url || undefined} size={64} />
             <div className="author-text">
               <Title level={4} className="author-title">
-                {gist.owner.login}/gist_name
+                {gist?.owner?.login}/gist_name
               </Title>
               <Text type="secondary" className="author-created">
                 Created: {createdDate}
@@ -111,13 +112,15 @@ const GistDetailsPage = () => {
 
       {/* Files Section */}
       <div className="">
-        {Object.entries(gist.files).map(([fileName, fileData]: any) => (
-          <Card key={fileName} title={fileName} className="file-card">
-            <Paragraph>
-              <pre className="file-content">{fileData.content}</pre>
-            </Paragraph>
-          </Card>
-        ))}
+        {Object.entries(gist.files).map(
+          ([fileName, fileData]: [string, GistFile]) => (
+            <Card key={fileName} title={fileName} className="file-card">
+              <Paragraph>
+                <pre className="file-content">{fileData.content}</pre>
+              </Paragraph>
+            </Card>
+          )
+        )}
       </div>
     </>
   );

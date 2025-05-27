@@ -11,20 +11,20 @@ import "prismjs/components/prism-json";
 import "prismjs/components/prism-yaml";
 // import "prismjs/components/prism-tsx";
 import { useEffect, useState } from "react";
-import { FileContentsMap } from "../../types/appTypes";
-interface GridComponentProps<T> {
-  data: T[];
+import { FileContentsMap, Gist, GistFile } from "../../types/appTypes";
+interface GridComponentProps {
+  data: Gist[];
   isLoggedIn: boolean;
   onFork?: (gistId: string) => void;
   size?: number;
 }
 
-function GridComponent<T extends object>({
+function GridComponent({
   data,
   isLoggedIn,
   onFork,
   size = 3,
-}: GridComponentProps<T>) {
+}: GridComponentProps) {
   const truncateText = (text: string, maxLength: number) => {
     if (text.length > maxLength) {
       return text.slice(0, maxLength) + "...";
@@ -37,7 +37,7 @@ function GridComponent<T extends object>({
     const fetchAllContents = async () => {
       const newContents: FileContentsMap = {};
       await Promise.all(
-        data.map(async (item: any) => {
+        data.map(async (item) => {
           const files = item.files || {};
           const firstFileKey = Object.keys(files)[0];
           const firstFile = files[firstFileKey];
@@ -64,9 +64,9 @@ function GridComponent<T extends object>({
 
   const handleCardClick = (id: string) => {
     if (isLoggedIn) {
-      navigate(`/gist/${id}`); // Navigate to the details page if logged in
+      navigate(`/gist/${id}`);
     } else {
-      alert("You must be logged in to view this gist."); // Show an alert if not logged in
+      alert("You must be logged in to view this gist.");
     }
   };
 
@@ -74,12 +74,10 @@ function GridComponent<T extends object>({
     <div>
       {/* Grid Layout */}
       <Row gutter={[16, 16]}>
-        {data.map((item: any) => {
-          console.log("Rendering item:", item.files);
+        {data.map((item: Gist) => {
           const firstFileKey = Object.keys(item.files)[0];
-          const firstFile = item.files[firstFileKey];
-          console.log("First file key:", firstFile);
-          const gistName = firstFile.name || "No file available";
+          const firstFile: GistFile = item.files[firstFileKey];
+          const gistName = firstFile.filename || "No file available";
           const fileContent = fileContents[item.id]?.[firstFileKey] || "";
           const language = (firstFile?.language || "json").toLowerCase();
           const colSpan = 24 / size;
