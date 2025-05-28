@@ -17,6 +17,7 @@ interface GridComponentProps {
   isLoggedIn: boolean;
   onFork?: (gistId: string) => void;
   size?: number;
+  onStar?: (gistId: string) => void;
 }
 
 function GridComponent({
@@ -24,6 +25,7 @@ function GridComponent({
   isLoggedIn,
   onFork,
   size = 3,
+  onStar,
 }: GridComponentProps) {
   const truncateText = (text: string, maxLength: number) => {
     if (text.length > maxLength) {
@@ -157,9 +159,10 @@ function GridComponent({
                         <Button
                           type="text"
                           disabled={!isLoggedIn}
-                          onClick={() =>
-                            console.log(`Star clicked for gist: ${item.id}`)
-                          }
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            onStar?.(item.id);
+                          }}
                           style={{ padding: 0 }}
                         >
                           <svg

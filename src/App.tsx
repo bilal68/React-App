@@ -2,6 +2,7 @@ import "./App.css";
 import Header from "./components/Header/Header";
 import LandingPage from "./Pages/LandingPage";
 import GistDetailsPage from "./Pages/GistDetailsPage/GistDetailsPage";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 import { AppProvider } from "./context/AppContext";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
@@ -10,13 +11,15 @@ import CreateGistPage from "./Pages/CreateGistPage/CreateGistPage";
 import PageLayout from "./components/Layout/PageLayout";
 import ProfilePage from "./Pages/ProfilePage/ProfilePage";
 
+const queryClient = new QueryClient();
+
 function App() {
-  // const isLoggedIn = !!sessionStorage.getItem("authToken");
   return (
-    <AppProvider>
-      <Router>
-        <Header />
-        <PageLayout>
+    <QueryClientProvider client={queryClient}>
+      <AppProvider>
+        <Router>
+          <Header />
+          <PageLayout>
             <Routes>
               <Route path="/" element={<LandingPage />} />
               <Route element={<ProtectedRoute />}>
@@ -25,17 +28,10 @@ function App() {
                 <Route path="/profile" element={<ProfilePage />} />
               </Route>
             </Routes>
-        </PageLayout>
-      </Router>
-    </AppProvider>
-  );
-}
-
-function TestToast() {
-  return (
-    <Button onClick={() => message.success("Toast works!")}>
-      Show Toast
-    </Button>
+          </PageLayout>
+        </Router>
+      </AppProvider>
+    </QueryClientProvider>
   );
 }
 export default App;

@@ -5,6 +5,7 @@ export interface AppContextType {
     setSearchTerm: (term: string) => void;
     authToken: string | null;
     userName: string | null;
+    displayName: string | null;
     profileImageUrl: string | null;
     setAuthData: (token: string | null, user: GitHubUser) => void;
 }

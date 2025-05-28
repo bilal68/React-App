@@ -1,9 +1,9 @@
 import { useParams } from "react-router-dom";
-import { useEffect, useState } from "react";
-import { Row, Col, Avatar, Card, Typography } from "antd";
+import { Row, Col, Avatar, Card, Typography, message } from "antd";
 import {
   fetchGistById,
   fetchGistForks,
+  fetchGistStars,
   forkGist,
   starGist,
 } from "../../services/gistService";
@@ -12,65 +12,82 @@ import "./GistDetailsPage.css";
 import GistActionButtons from "../../components/GistActionButtons/GistActionButtons";
 import Loader from "../../components/Loader/Loader";
 import { Gist, GistFile } from "../../types/appTypes";
+import { useMutation, useQuery } from "@tanstack/react-query";
 
 const { Title, Text, Paragraph } = Typography;
 
 const GistDetailsPage = () => {
   const { id } = useParams();
-  const [gist, setGist] = useState<Gist | null>(null);
-  const [forksCount, setForksCount] = useState(0);
-  const [starsCount] = useState(0);
-  const [isForkLoading, setIsForkLoading] = useState(false);
-  const [isStarLoading, setIsStarLoading] = useState(false);
+  const {
+    data: gist,
+    isLoading: isGistLoading,
+    error: gistError,
+    isError: isGistError,
+  } = useQuery<Gist>({
+    queryKey: ["gist", id],
+    queryFn: () => fetchGistById(id!),
+    enabled: !!id,
+  });
 
-  useEffect(() => {
-    const fetchGistDetails = async () => {
-      try {
-        const data: Gist = await fetchGistById(id!);
-        setGist(data);
-      } catch (error) {
-        console.error("Error fetching gist:", error);
-      }
-    };
-    const fetchForks = async () => {
-      try {
-        const data = await fetchGistForks(id!);
-        setForksCount(data.length);
-      } catch (error) {
-        console.error("Error fetching forks:", error);
-      }
-    };
+  // Fetch forks count
+  const {
+    data: forksData,
+    isLoading: isForksLoading,
+    error: forksError,
+    isError: isForksError,
+  } = useQuery<Gist[]>({
+    queryKey: ["gistForks", id],
+    queryFn: () => fetchGistForks(id!),
+    enabled: !!id,
+  });
 
-    fetchGistDetails();
-    fetchForks();
-  }, [id]);
+  // Fetch stars count
+  const {
+    data: starsData,
+    isLoading: isStarsLoading,
+    error: starsError,
+    isError: isStarsError,
+  } = useQuery<Gist[]>({
+    queryKey: ["gistStars", id],
+    queryFn: () => fetchGistStars(id!),
+    enabled: !!id,
+  });
 
+  if (isGistError) console.error("Error fetching gist:", gistError);
+  if (isForksError) console.error("Error forking gist:", forksError);
+  if (isStarsError) console.error("Error forking gist:", starsError);
+  // Fork mutation
+  const forkMutation = useMutation({
+    mutationFn: () => forkGist(id!),
+    onSuccess: () => {
+      message.success("Gist forked successfully!");
+    },
+  });
+  // Star mutation
+  const starMutation = useMutation({
+    mutationFn: () => starGist(id!),
+    onSuccess: () => {
+      message.success("Gist starred successfully!");
+    },
+  });
   if (!gist) return <div>Loading...</div>;
 
   const createdDate = new Date(gist.created_at).toLocaleString();
 
   const handleFork = async () => {
-    try {
-      setIsForkLoading(true);
-      await forkGist(id!);
-      setIsForkLoading(false);
-    } catch (error) {
-      console.log("Failed to fork gist.", error);
-    }
+    forkMutation.mutate();
   };
 
   const handleStar = async () => {
-    try {
-      setIsStarLoading(true);
-      await starGist(id!);
-      setIsStarLoading(false);
-    } catch (error) {
-      console.log("Failed to fork gist.", error);
-    }
+    starMutation.mutate();
   };
   return (
     <>
-      {(isForkLoading || isStarLoading) && <Loader />}
+      {(isGistLoading ||
+        isForksLoading ||
+        isStarsLoading ||
+        forkMutation.isPending ||
+        starMutation.isPending) && <Loader />}
       <Row
         gutter={[24, 16]}
         align="middle"
@@ -102,10 +119,10 @@ const GistDetailsPage = () => {
             isLoggedIn={true}
             onFork={handleFork}
             onStar={handleStar}
-            forksCount={forksCount}
-            starsCount={starsCount}
-            isForkLoading={isForkLoading}
-            isStarLoading={isStarLoading}
+            forksCount={forksData?.length || 0}
+            starsCount={starsData?.length || 0}
+            isForkLoading={forkMutation.isPending}
+            isStarLoading={starMutation.isPending}
           />
         </Col>
       </Row>

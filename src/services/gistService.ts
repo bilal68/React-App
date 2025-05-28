@@ -1,6 +1,6 @@
 // Fetch public gists from GitHub API
 
-import { CreateGistPayload } from "../types/appTypes";
+import { CreateGistPayload, Gist } from "../types/appTypes";
 
 const baseUrl = 'https://api.github.com/gists';
 const token = import.meta.env.VITE_GITHUB_TOKEN;
@@ -16,7 +16,7 @@ const handleApiError = async (response: Response) => {
     return { status: response.status, message: errorMsg };
 };
 
-export const fetchPublicGists = async (page: number = 1) => {
+export const fetchPublicGists = async (page: number = 1): Promise<Gist[]> => {
     try {
         const response = await fetch(`${baseUrl}/public?page=${page}`,
             {
@@ -73,6 +73,30 @@ export const fetchGistForks = async (gistId: string) => {
         return data;
     } catch (error) {
         console.error("Error fetching forks:", error);
+        throw error;
+    }
+};
+
+export const fetchGistStars = async (gistId: string) => {
+    try {
+        console.log(gistId)
+        return [];
+        // const response = await fetch(`${baseUrl}/${gistId}/forks`, {
+        //     method: "GET",
+        //     headers: {
+        //         Authorization: `Bearer ${token}`,
+        //         "Content-Type": "application/json",
+        //     },
+        // });
+
+        // if (!response.ok) {
+        //     throw await handleApiError(response);
+        // }
+
+        // const data = await response.json();
+        // return data;
+    } catch (error) {
+        console.error("Error fetching stars:", error);
         throw error;
     }
 };
@@ -146,6 +170,7 @@ export const createGist = async (
 };
 
 export const fetchUserGists = async (username: string) => {
+    console.log("Fetching user gists for:", username);
     const baseUrl = `https://api.github.com/users/${username}/gists`;
     const token = sessionStorage.getItem("authToken");
 

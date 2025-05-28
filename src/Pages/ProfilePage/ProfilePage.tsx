@@ -1,5 +1,5 @@
-import { useEffect, useState } from "react";
-import { Row, Col, Avatar, Typography, Button } from "antd";
+import { useState } from "react";
+import { Row, Col, Avatar, Typography, Button, message } from "antd";
 import "./ProfilePage.css";
 import PaginationComponent from "../../components/Pagination/Pagination";
 import GridComponent from "../../components/GridComponent/GridComponent";
@@ -7,36 +7,28 @@ import { fetchUserGists } from "../../services/gistService";
 import Loader from "../../components/Loader/Loader";
 import { useAppContext } from "../../context/AppContext";
 import { Gist } from "../../types/appTypes";
+import { useQuery } from "@tanstack/react-query";
 
 const { Title } = Typography;
 
 const ProfilePage = () => {
-  const { userName, profileImageUrl } = useAppContext();
-  console.log("ProfilePage userName:", userName);
-  const [gists, setGists] = useState<Gist[]>([]);
-  const [loading, setLoading] = useState(false);
+  const { userName, profileImageUrl, displayName } = useAppContext();
 
-  const [currentPage, setCurrentPage] = useState(1); 
+  const [currentPage, setCurrentPage] = useState(1);
   const [pageSize] = useState(5);
-  useEffect(() => {
-    const getGists = async () => {
-      try {
-        setLoading(true);
-        if (!userName) {
-          throw new Error("Username is required to fetch gists.");
-        }
-        const userGists = await fetchUserGists(userName); 
-        setGists(userGists);
-        console.log("state Gists:", gists);
-        console.log("User Gists:", userGists);
-      } catch (error) {
-        console.error("Failed to fetch gists:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-    getGists();
-  }, []);
+
+  // Use React Query to fetch user gists
+  const {
+    data: gists = [],
+    isLoading,
+    // error,
+  } = useQuery<Gist[]>({
+    queryKey: ["userGists", userName],
+    queryFn: () => fetchUserGists(userName!),
+    enabled: !!userName,
+    staleTime: 5000,
+  });
+
   // Calculate paginated data
   const startIndex = (currentPage - 1) * pageSize;
   const paginatedGists = gists.slice(startIndex, startIndex + pageSize);
@@ -48,13 +40,13 @@ const ProfilePage = () => {
 
   return (
     <>
-      {loading && <Loader />}
+      {isLoading && <Loader />}
       <Row gutter={[24, 24]} justify="space-between">
         {/* Profile Sidebar */}
         <Col xs={24} md={6}>
           <div className="profile-card">
             <Avatar src={profileImageUrl} size={250} />
-            <Title level={1}>{userName}</Title>
+            <Title level={1}>{displayName}</Title>
             <Button type="primary" size="large">
               View GitHub Profile
               {/* window.open(user?.html_url || "https://github.com", "_blank") */}
@@ -71,8 +63,9 @@ const ProfilePage = () => {
           <GridComponent
             data={paginatedGists}
             isLoggedIn={true}
-            onFork={(gistId) => console.log(`Fork clicked for gist: ${gistId}`)}
+            onFork={() => message.warning("You cannot fork your on gist!")}
             size={1}
+            onStar={() => message.warning("You cannot star your on gist!")}
           />
 
           <PaginationComponent

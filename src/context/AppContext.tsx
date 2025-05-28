@@ -10,29 +10,34 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
   const [authToken, setAuthToken] = useState<string | null>(
     sessionStorage.getItem("authToken") || null
   );
-  
+
   const [userName, setUserName] = useState<string | null>(
     sessionStorage.getItem("userName") || null
+  );
+  const [displayName, setDisplayName] = useState<string | null>(
+    sessionStorage.getItem("displayName") || null
   );
   const [profileImageUrl, setProfileImageUrl] = useState<string | null>(
     sessionStorage.getItem("profileImageUrl") || null
   );
 
   const handleLogin = (token: string | null, user: GitHubUser) => {
-    // console.log("handleLogin", user);
-    const { displayName, photoURL } = user;
+    const { userName, photoURL, displayName } = user;
     if (token) {
       sessionStorage.setItem("authToken", token);
-      sessionStorage.setItem("userName", displayName || "");
+      sessionStorage.setItem("userName", userName || "");
       sessionStorage.setItem("profileImageUrl", photoURL || "");
+      sessionStorage.setItem("displayName", displayName || "");
       // sessionStorage.setItem("profileLink", link || "");
     } else {
       sessionStorage.removeItem("authToken");
       sessionStorage.removeItem("userName");
+      sessionStorage.removeItem("displayName");
       sessionStorage.removeItem("profileImageUrl");
     }
     setAuthToken(token);
-    setUserName(displayName);
+    setDisplayName(displayName);
+    setUserName(userName);
     setProfileImageUrl(photoURL);
     // setProfileLink(link);
   };
@@ -43,6 +48,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
         searchTerm,
         setSearchTerm,
         authToken,
+        displayName,
         userName,
         profileImageUrl,
         setAuthData: handleLogin,

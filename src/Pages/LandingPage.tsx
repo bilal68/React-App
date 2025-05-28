@@ -1,12 +1,6 @@
 import { useEffect, useState } from "react";
-import {
-  Button,
-  Col,
-  message,
-  Row,
-  Space,
-  Typography,
-} from "antd";
+import { Button, Col, message, Row, Space, Typography } from "antd";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { AppstoreOutlined, TableOutlined } from "@ant-design/icons";
 import TableComponent from "../components/TableComponent/TableComponent";
 import GridComponent from "../components/GridComponent/GridComponent";
@@ -25,47 +19,38 @@ function LandingPage() {
   const isLoggedIn = !!authToken;
 
   const [view, setView] = useState<"table" | "grid">("table");
-  const [gists, setGists] = useState([]);
-  const [filteredData, setFilteredData] = useState([]);
+  const [filteredData, setFilteredData] = useState<Gist[]>([]);
 
-  const [loading, setLoading] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const pageSize = view === "table" ? 10 : 9;
 
-  const handleFork = async (gistId: string) => {
-    try {
-      setLoading(true);
-      await forkGist(gistId);
+  const forkMutation = useMutation({
+    mutationFn: (gistId: string) => forkGist(gistId),
+    onSuccess: () => {
       message.success("Gist forked successfully!");
-    } catch (error) {
-      const apiError = error as ApiError;
-      if (apiError.status === 422) message.warning(apiError.message);
-      else console.error("Error while forking gist:", error);
-    } finally {
-      setLoading(false);
-    }
+      // Optionally refetch gists to update UI
+      // queryClient.invalidateQueries({ queryKey: ["publicGists"] });
+    },
+    onError: (error: ApiError) => {
+      if (error.status === 422) message.warning(error.message);
+      else message.error("Error while forking gist.");
+    },
+  });
+  const handleFork = async (gistId: string) => {
+    forkMutation.mutate(gistId);
   };
+  const {
+    data: gists = [],
+    isLoading,
+    // error,
+  } = useQuery<Gist[], Error>({
+    queryKey: ["publicGists", currentPage],
+    queryFn: () => fetchPublicGists(currentPage),
+    staleTime: 5000,
+  });
 
   useEffect(() => {
-    const fetchData = async () => {
-      setLoading(true);
-      try {
-        const data = await fetchPublicGists(currentPage);
-        setGists(data);
-        setFilteredData(data);
-        setLoading(false);
-      } catch (error) {
-        console.error("Failed to fetch gists:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchData();
-  }, [currentPage]);
-
-  useEffect(() => {
-    const filtered = gists.filter(
+    const filtered = (gists as Gist[]).filter(
       (item: Gist) =>
         (typeof item.description === "string" &&
           item.description.toLowerCase().includes(searchTerm.toLowerCase())) ||
@@ -81,7 +66,7 @@ function LandingPage() {
 
   return (
     <>
-      {loading && <Loader />}
+      {(isLoading || forkMutation.isPending) && <Loader />}
       <Row align="middle" justify="space-between" style={{ marginBottom: 24 }}>
         <Col>
           <Title level={3} style={{ margin: 0 }}>
