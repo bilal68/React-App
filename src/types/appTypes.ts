@@ -79,3 +79,12 @@ export interface ApiError {
     status: number;
     message: string;
 }
+export interface CreateGistFile {
+  filename: string;
+  content: string;
+}
+
+export interface CreateGist {
+  description: string;
+  files: CreateGistFile[];
+}
