@@ -16,6 +16,14 @@ import { useMutation, useQuery } from "@tanstack/react-query";
 
 const { Title, Text, Paragraph } = Typography;
 
+import Prism from "prismjs";
+import "prismjs/themes/prism.css"; // or another Prism theme
+import "prismjs/components/prism-javascript"; // add more languages as needed
+import "prismjs/components/prism-python";
+import "prismjs/components/prism-typescript";
+import { useEffect } from "react";
+// ...import other languages as needed
+
 const GistDetailsPage = () => {
   const { id } = useParams();
   const {
@@ -29,6 +37,9 @@ const GistDetailsPage = () => {
     enabled: !!id,
   });
 
+  useEffect(() => {
+    Prism.highlightAll();
+  }, [gist]);
   // Fetch forks count
   const {
     data: forksData,
@@ -70,9 +81,9 @@ const GistDetailsPage = () => {
       message.success("Gist starred successfully!");
     },
   });
-  if (!gist) return <div>Loading...</div>;
-
-  const createdDate = new Date(gist.created_at).toLocaleString();
+  const createdDate = gist?.created_at
+    ? new Date(gist.created_at).toLocaleString()
+    : "";
 
   const handleFork = async () => {
     forkMutation.mutate();
@@ -106,7 +117,7 @@ const GistDetailsPage = () => {
                 Created: {createdDate}
               </Text>
               <Text type="secondary" className="author-description">
-                {gist.description || "No description"}
+                {gist?.description || "No description"}
               </Text>
             </div>
           </div>
@@ -115,7 +126,7 @@ const GistDetailsPage = () => {
         {/* Right Side: Forks, Stars Styled Buttons */}
         <Col xs={24} md={8} className="gist-buttons-wrapper">
           <GistActionButtons
-            gistId={gist.id}
+            gistId={gist?.id || ""}
             isLoggedIn={true}
             onFork={handleFork}
             onStar={handleStar}
@@ -128,17 +139,36 @@ const GistDetailsPage = () => {
       </Row>
 
       {/* Files Section */}
-      <div className="">
-        {Object.entries(gist.files).map(
-          ([fileName, fileData]: [string, GistFile]) => (
+      {Object.entries(gist?.files || {}).map(
+        ([fileName, fileData]: [string, GistFile]) => {
+          // Guess language from file extension
+          const ext = fileName.split(".").pop() || "";
+          const lang =
+            ext === "js"
+              ? "javascript"
+              : ext === "ts"
+              ? "typescript"
+              : ext === "py"
+              ? "python"
+              : ext === "json"
+              ? "json"
+              : ext === "css"
+              ? "css"
+              : ext === "html"
+              ? "html"
+              : "markup";
+
+          return (
             <Card key={fileName} title={fileName} className="file-card">
               <Paragraph>
-                <pre className="file-content">{fileData.content}</pre>
+                <pre className={`language-${lang}`}>
+                  <code className={`language-${lang}`}>{fileData.content}</code>
+                </pre>
               </Paragraph>
             </Card>
-          )
-        )}
-      </div>
+          );
+        }
+      )}
     </>
   );
 };

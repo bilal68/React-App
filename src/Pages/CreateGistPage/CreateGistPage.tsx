@@ -41,6 +41,7 @@ const CreateGistForm = () => {
     handleSubmit,
     reset,
     formState: { errors, isSubmitting },
+    watch,
   } = useForm<CreateGist>({
     resolver: yupResolver(schema),
     defaultValues: {
@@ -48,6 +49,12 @@ const CreateGistForm = () => {
       files: [{ filename: "", content: "" }],
     },
   });
+
+  const watchedFiles = watch("files");
+  const canAddFile = watchedFiles.every(
+    (file: { filename: string; content: string }) =>
+      file.filename.trim() !== "" && file.content.trim() !== ""
+  );
 
   const { fields, append, remove } = useFieldArray({
     control,
@@ -206,8 +213,9 @@ const CreateGistForm = () => {
               }}
             >
               <Button
-                type="dashed"
+                type="default"
                 onClick={() => append({ filename: "", content: "" })}
+                disabled={!canAddFile}
               >
                 Add File
               </Button>
