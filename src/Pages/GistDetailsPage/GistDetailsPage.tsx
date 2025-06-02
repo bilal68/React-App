@@ -12,7 +12,7 @@ import "./GistDetailsPage.css";
 import GistActionButtons from "../../components/GistActionButtons/GistActionButtons";
 import Loader from "../../components/Loader/Loader";
 import { Gist, GistFile } from "../../types/appTypes";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 const { Title, Text, Paragraph } = Typography;
 
@@ -60,11 +60,13 @@ const GistDetailsPage = () => {
   if (isGistError) console.error("Error fetching gist:", gistError);
   if (isForksError) console.error("Error forking gist:", forksError);
   if (isStarsError) console.error("Error forking gist:", starsError);
+  const queryClient = useQueryClient();
   // Fork mutation
   const forkMutation = useMutation({
     mutationFn: () => forkGist(id!),
     onSuccess: () => {
       message.success("Gist forked successfully!");
+      queryClient.invalidateQueries({ queryKey: ["gistForks", id] }); 
     },
   });
   // Star mutation
