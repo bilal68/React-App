@@ -22,6 +22,7 @@ import "prismjs/components/prism-javascript"; // add more languages as needed
 import "prismjs/components/prism-python";
 import "prismjs/components/prism-typescript";
 import { useEffect } from "react";
+import { useGistListQuery } from "../../hooks/hooks";
 // ...import other languages as needed
 
 const GistDetailsPage = () => {
@@ -46,11 +47,7 @@ const GistDetailsPage = () => {
     isLoading: isForksLoading,
     error: forksError,
     isError: isForksError,
-  } = useQuery<Gist[]>({
-    queryKey: ["gistForks", id],
-    queryFn: () => fetchGistForks(id!),
-    enabled: !!id,
-  });
+  } = useGistListQuery<Gist>("gistForks", id, fetchGistForks);
 
   // Fetch stars count
   const {
@@ -58,11 +55,7 @@ const GistDetailsPage = () => {
     isLoading: isStarsLoading,
     error: starsError,
     isError: isStarsError,
-  } = useQuery<Gist[]>({
-    queryKey: ["gistStars", id],
-    queryFn: () => fetchGistStars(id!),
-    enabled: !!id,
-  });
+  } = useGistListQuery<Gist>("gistStars", id, fetchGistStars);
 
   if (isGistError) console.error("Error fetching gist:", gistError);
   if (isForksError) console.error("Error forking gist:", forksError);
